@@ -1,0 +1,10 @@
+{
+    "env": {
+        "DB_NAME": "chores_quest",
+        "DB_USERNAME": "admin",
+        "DB_PASSWORD": "KVU52ck8",
+        "DB_HOST": "projectdatabases.ddns.net",
+        "DB_PORT": "3306",
+        "JWT_SECRET_KEY": "secret_key"
+    }
+}
