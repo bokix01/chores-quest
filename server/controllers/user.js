@@ -1,4 +1,4 @@
-const {User} = require('../models');
+const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -13,7 +13,7 @@ exports.user_get = (req, res) => {
         .catch(error => {
             res.status(500).json({
                 error: error
-            })
+            });
         });
 }
 
@@ -23,6 +23,7 @@ exports.user_edit = (req, res) => {
             user.first_name = req.body.first_name
             user.last_name = req.body.last_name
             user.username = req.body.username
+            user.points = req.body.points
             user.save()
                 .then(result => {
                     return res.status(200).json({

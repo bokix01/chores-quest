@@ -24,6 +24,10 @@ User.init({
     is_group_admin: {
         type: DataTypes.BOOLEAN,
         allowNull: false
+    },
+    points: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 }, {
     sequelize,

@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const groupRoutes = require('./routes/group');
 const taskRoutes = require('./routes/task');
 const userRoutes = require('./routes/user');
+const rewardRoutes = require('./routes/reward');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/group', groupRoutes);
 app.use('/task', taskRoutes);
 app.use('/user', userRoutes);
+app.use('/reward', rewardRoutes);
 
 // Home Page
 app.get('/', (req, res) => {
@@ -44,7 +46,7 @@ app.use((error, req, res) => {
 const PORT = process.env.PORT || 3000;
 
 try {
-    sequelize.sync(/*{ force: true }*/);
+    sequelize.sync({ force: true });
     app.listen(PORT, () => console.log(`Server running on port: ${PORT}`))
 } catch (error) {
     console.log(error);
