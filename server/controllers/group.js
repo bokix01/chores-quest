@@ -1,161 +1,84 @@
 const { User, Group } = require('../models');
 
-exports.group_get = (req, res) => {
-    User.findByPk(req.userData.user_id)
-        .then(user => {
-            if (user) {
-                Group.findByPk(user.group_id)
-                    .then(result => {
-                        return res.status(200).json({
-                            result: result
-                        });
-                    })
-                    .catch(error => {
-                        return res.status(500).json({
-                            error: error
-                        });
-                    });
+exports.group_create = async (req, res) => {
+    let invite_code = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < 16; i++) {
+        invite_code += characters[Math.floor(Math.random() * characters.length)];
+    }
+
+    try {
+        let group = await new Group({
+            name: req.body.name,
+            invite_code: invite_code
+        });
+        await group.save();
+
+        let user = await User.findByPk(req.userData.user_id);
+        user.group_id = group.id;
+        await user.save();
+
+        return res.status(200).json({
+            message: 'Group created successfully.',
+            invite_code: invite_code
+        });
+    } catch(error) {
+        return res.status(500).json({
+            message: 'An error occurred while creating group.',
+            error: error
+        });
+    }
+}
+
+exports.group_id_get = async (req, res) => {
+    try {
+        const group = await Group.findByPk(req.params.groupId);
+
+        return res.status(200).json({
+            message: 'Group data fetched successfully.',
+            group: group
+        });
+    } catch(error) {
+        return res.status(500).json({
+            message: 'An error occurred while fetching group data.',
+            error: error
+        });
+    }
+}
+
+exports.group_id_edit = async (req, res) => {
+    try {
+        const group = await Group.findByPk(req.params.groupId);
+
+        group.name = req.body.name;
+        await group.save();
+
+        return res.status(200).json({
+            message: 'Group data changed successfully.'
+        });
+    } catch(error) {
+        return res.status(500).json({
+            message: 'An error occurred while changing group data.',
+            error: error
+        });
+    }
+}
+
+exports.group_id_delete = async (req, res) => {
+    try {
+        await Group.destroy({
+            where: {
+                id: req.params.groupId
             }
         });
-}
 
-exports.group_create = (req, res) => {
-    new Group({
-        name: req.body.name
-    }).save()
-        .then(group => {
-            User.findByPk(req.userData.user_id)
-                .then(user => {
-                    user.group_id = group.id;
-                    user.save()
-                        .then(user => {
-                            if (user) {
-                                return res.status(201).json({
-                                    message: 'Success'
-                                });
-                            } else {
-                                return res.status(201).json({
-                                    message: 'Not working'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            return res.status(500).json({
-                                error: error
-                            });
-                        });
-                })
-                .catch(error => {
-                    return res.status(500).json({
-                        error: error
-                    });
-                });
-        })
-        .catch(error => {
-            return res.status(500).json({
-                error: error
-            });
+        return res.status(200).json({
+            message: 'Group data deleted successfully',
         });
-}
-
-exports.group_id_get = (req, res) => {
-    Group.findByPk(req.params.groupId)
-        .then(result => {
-            return res.status(200).json({
-                result: result
-            });
-        })
-        .catch(error => {
-            return res.status(500).json({
-                error: error
-            });
+    } catch(error) {
+        return res.status(500).json({
+            message: 'An error occurred while deleting group data.',
+            error: error
         });
-}
-
-exports.group_id_edit = (req, res) => {
-    const group_id = req.params.groupId;
-    User.findOne({
-        where: {
-            id: req.userData.user_id,
-            group_id: group_id
-        }
-    })
-        .then(user => {
-            if (user) {
-                Group.findByPk(group_id)
-                    .then(group => {
-                        group.name = req.body.name;
-                        group.save()
-                            .then(group => {
-                                if (group) {
-                                    return res.status(200).json({
-                                        result: 'Group edited successfully.'
-                                    });
-                                } else {
-                                    return res.status(200).json({
-                                        result: 'Group not edited due to some issues.'
-                                    });
-                                }
-                            });
-                    })
-                    .catch(error => {
-                        return res.status(500).json({
-                            result: error
-                        });
-                    });
-            } else {
-                return res.status(200).json({
-                    result: 'Group not edited due to some issues.'
-                });
-            }
-        })
-        .catch(error => {
-            return res.status(500).json({
-                result: error
-            });
-        });
-}
-
-exports.group_id_delete = (req, res) => {
-    const group_id = req.params.groupId;
-    User.findOne({
-        where: {
-            id: req.userData.user_id,
-            group_id: group_id
-        }
-    })
-        .then(user => {
-            if (user) {
-                Group.destroy({
-                    where: {
-                        id: group_id
-                    }
-                })
-                    .then(deleted => {
-                        if (deleted) {
-                            return res.status(200).json({
-                                result: 'Group deleted successfully.'
-                            });
-                        } else {
-                            return res.status(200).json({
-                                result: 'Group not deleted due to some issues.'
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        return res.status(500).json({
-                            result: error
-                        });
-                    });
-            } else {
-                return res.status(200).json({
-                    result: 'Group not deleted due to some issues.'
-                });
-            }
-        })
-        .catch(error => {
-            return res.status(500).json({
-                result: error
-            });
-        });
+    }
 }

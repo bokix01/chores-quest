@@ -7,6 +7,11 @@ Group.init({
     name: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    invite_code: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
     }
 }, {
     sequelize,
